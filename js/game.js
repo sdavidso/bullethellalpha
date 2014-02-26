@@ -1,4 +1,3 @@
-
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 
 function preload() {
@@ -10,7 +9,7 @@ function preload() {
 
 function create() {
 
-	//background
+	//background-color
 	game.stage.backgroundColor = "#E0E4F1";
 	
 	//create sprite
