@@ -1,5 +1,7 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 var background;
+var fireRate = 100;
+var nextFire = 0;
 
 function preload() {
     //load with identifier and URL
@@ -16,6 +18,9 @@ function preload() {
 	//load player
 	//game.load.image('reimu', 'assets/img/player/reimu1.png');
 	game.load.spritesheet('reimu', 'assets/img/player/reimu1.png',32,50,4,0,0);
+	
+	//bullets, you shoot these
+	game.load.image('bullet1', 'assets/img/player/bullet1.png');
 }
 
 
@@ -30,7 +35,7 @@ function create() {
 
 
 	//create player
-	player = game.add.sprite(250,400,'reimu');
+	player = game.add.sprite(250,450,'reimu');
 	player.animations.add('stand'); //animations
 	player.animations.play('stand',5,true);
 	
@@ -41,17 +46,57 @@ function create() {
 	//animation start (name,fps,looping)
 	bubble1.animations.play('shine',5,true);
 	
+	bullets = game.add.group();
+	bullets.createMultiple(50, 'bullet1');
+	bullets.setAll('outOfBoundsKill', true);
+	
 	keyboard = game.input.keyboard; //create keyboard
 }
 
 function update(){
-    //keyboard control, press down button
-	if(keyboard.isDown(Phaser.Keyboard.DOWN)) {
-		bubble1.body.velocity.y = 20; //brings sprite down
-	} else {
-		bubble1.body.velocity.y = 0; //but only when pressing down
+
+	//move player
+	playermove();
+	
+	//bullets fire
+	if(game.input.activePointer.isDown) //click
+	{
+		fire();
 	}
+	
 	
 	//background tile update and speed
 	background.tilePosition.y -= .5;
+}
+
+//fires bullets from player
+function fire() {
+	if(game.time.now > nextFire && bullets.countDead() > 0)
+	{
+		nextFire = game.time.now+fireRate;
+		var bullet = bullets.getFirstDead();
+		bullet.reset(player.x,player.y);
+		bullet.rotation = game.physics.moveToPointer(bullet,300);
+    }
+
+}
+
+//moves player with keyboard
+function playermove(){
+	var basemovespeed = 120;
+	//keyboard control, directions
+	if(keyboard.isDown(Phaser.Keyboard.S)) {
+		player.body.velocity.y = basemovespeed; //brings sprite down
+	} else if (keyboard.isDown(Phaser.Keyboard.W)){
+		player.body.velocity.y = -basemovespeed; //brings sprite up
+	} else {
+	    player.body.velocity.y = 0; //no buttons pressed
+	}
+	if(keyboard.isDown(Phaser.Keyboard.A)) {
+		player.body.velocity.x = -basemovespeed; //brings sprite left
+	} else if (keyboard.isDown(Phaser.Keyboard.D)){
+		player.body.velocity.x = basemovespeed; //brings sprite up
+	} else {
+	    player.body.velocity.x = 0; //no buttons pressed
+	}
 }
