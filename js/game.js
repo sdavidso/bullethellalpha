@@ -1,7 +1,12 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 var background;
+var scoreboard;
+var score;
+
+//variables
 var fireRate = 100;
 var nextFire = 0;
+
 
 function preload() {
     //load with identifier and URL
@@ -26,13 +31,19 @@ function preload() {
 
 function create() {
 
+	//reset variables
+	score = 0;
+	
 	//background-color
 	game.stage.backgroundColor = "#E0E4F1";
 
 	//background tilesprite (beginningxy, size xy, URL)
 	background = game.add.tileSprite(0,0,800,600,'bgIce');
 
-
+	//UI
+	//score
+	var textstyle = { font: "30px Arial", fill: "#00008B", align: "center"};
+	scoreboard = game.add.text(600, 100, "Score : 0", textstyle);
 
 	//create player
 	player = game.add.sprite(250,450,'reimu');
@@ -41,14 +52,19 @@ function create() {
 	
 	//bubble?
 	bubble1 = game.add.sprite(250,10,'bubbleOrange');
+	bubble1.body.immovable = true; //no physics
+	
 	//animate sprite
 	bubble1.animations.add('shine');
 	//animation start (name,fps,looping)
 	bubble1.animations.play('shine',5,true);
 	
+	//create bullets
 	bullets = game.add.group();
 	bullets.createMultiple(50, 'bullet1');
 	bullets.setAll('outOfBoundsKill', true);
+	bullets.setAll('body.immovable',true);
+	//bullets.body.immovable = true;
 	
 	keyboard = game.input.keyboard; //create keyboard
 }
@@ -65,8 +81,14 @@ function update(){
 	}
 	
 	
+	game.physics.collide(bubble1, bullets, collisionEnemyVsBullets, null, this);
+	
+	
+	//updatescoreboard
+	//addScore(1);
+	
 	//background tile update and speed
-	background.tilePosition.y -= .5;
+	background.tilePosition.y += .5;
 }
 
 //fires bullets from player
@@ -99,4 +121,15 @@ function playermove(){
 	} else {
 	    player.body.velocity.x = 0; //no buttons pressed
 	}
+}
+	
+function addScore(number){
+	
+	score += number;
+	scoreboard.setText("Score :" + score);
+}
+
+function collisionEnemyVsBullets(enemy, bullet){
+	bullet.kill();
+	addScore(1);
 }
