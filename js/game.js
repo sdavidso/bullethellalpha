@@ -43,7 +43,7 @@ function create() {
 	//UI
 	//score
 	var textstyle = { font: "30px Arial", fill: "#00008B", align: "center"};
-	scoreboard = game.add.text(600, 100, "Score : 0", textstyle);
+	scoreboard = game.add.text(600, 100, "Score: 0", textstyle);
 
 	//create player
 	player = game.add.sprite(250,450,'reimu');
@@ -52,7 +52,6 @@ function create() {
 	
 	//bubble?
 	bubble1 = game.add.sprite(250,10,'bubbleOrange');
-	bubble1.body.immovable = true; //no physics
 	
 	//animate sprite
 	bubble1.animations.add('shine');
@@ -63,7 +62,7 @@ function create() {
 	bullets = game.add.group();
 	bullets.createMultiple(50, 'bullet1');
 	bullets.setAll('outOfBoundsKill', true);
-	bullets.setAll('body.immovable',true);
+	bullets.setAll('immovable',true);
 	//bullets.body.immovable = true;
 	
 	keyboard = game.input.keyboard; //create keyboard
@@ -80,8 +79,8 @@ function update(){
 		fire();
 	}
 	
-	
-	game.physics.collide(bubble1, bullets, collisionEnemyVsBullets, null, this);
+	//check for bullet hits
+	game.physics.overlap(bubble1, bullets, overlapEnemyVsBullets, null, this);
 	
 	
 	//updatescoreboard
@@ -126,10 +125,10 @@ function playermove(){
 function addScore(number){
 	
 	score += number;
-	scoreboard.setText("Score :" + score);
+	scoreboard.setText("Score: " + score);
 }
 
-function collisionEnemyVsBullets(enemy, bullet){
+function overlapEnemyVsBullets(enemy, bullet){
 	bullet.kill();
 	addScore(1);
 }
